@@ -10,10 +10,10 @@ from torchvision import datasets, transforms
 from torchvision.transforms import ToTensor, Normalize, Grayscale
 
 transform=transforms.Compose([
-    transforms.Resize((28,28)),
-    Grayscale(num_output_channels=1),
+    transforms.Resize((512,512)),
+    #Grayscale(num_output_channels=1),
     transforms.ToTensor(),
-    transforms.Normalize((0.5,),(0.5,))
+    transforms.Normalize(mean=[0.485,0.456,0.406],std=[0.229,0.224,0.225])
 ])
 
 train_data_path="C:/Users/HP/Downloads/FindMyFriend/training"
@@ -45,7 +45,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.flatten = nn.Flatten()
-        self.l1 = nn.Linear(28*28, 512)
+        self.l1 = nn.Linear(512*512*3, 512)
         self.l2 = nn.Linear(512, 512)
         self.l3 = nn.Linear(512, 10)
 
