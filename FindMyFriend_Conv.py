@@ -56,15 +56,18 @@ optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 # Define functions for training and testing loops
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
+    train_loss=[]
     for batch, (X, y) in enumerate(dataloader):
         pred = model(X)
         loss = loss_fn(pred, y)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        train_loss.append(loss.item())
         if batch % 100 == 0:
             loss, current = loss.item(), batch * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+            print(f"train loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+    return train_loss
 
 def test_loop(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
@@ -87,17 +90,18 @@ def test_loop(dataloader, model, loss_fn):
 train_accuracy_val = []
 test_accuracy_val = []
 test_loss_val = []
+train_loss_val=[]
 epochs = 50
 
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
     train_loop(train_dataloader, model, loss_fn, optimizer)
-    train_accuracy, _ = test_loop(train_dataloader, model, loss_fn)
+    train_accuracy, train_loss = test_loop(train_dataloader, model, loss_fn)
     test_accuracy, test_loss = test_loop(test_dataloader, model, loss_fn)
     train_accuracy_val.append(train_accuracy)
     test_accuracy_val.append(test_accuracy)
     test_loss_val.append(test_loss)
-
+    train_loss_val.append(train_loss)
 print("Training done!")
 
 # After training, you can evaluate a sample image
@@ -134,6 +138,7 @@ plt.imshow(iman)
 #Plots
 plt.figure(figsize=(10, 5))
 plt.plot(range(1, epochs + 1), test_loss_val, label='Test Loss')
+plt.plot(range(1,epochs + 1), train_loss_val, label='Train Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.title('Loss Over Epochs')
